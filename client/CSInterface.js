@@ -1,7 +1,7 @@
 /**************************************************************************************************
  *
  * ADOBE SYSTEMS INCORPORATED
- * Copyright 2020 Adobe Systems Incorporated
+ * Copyright 2013 Adobe Systems Incorporated
  * All Rights Reserved.
  *
  * NOTICE:  Adobe permits you to use, modify, and distribute this file in accordance with the
@@ -11,7 +11,7 @@
  *
  **************************************************************************************************/
 
-/** CSInterface - v11.0.0 */
+/** CSInterface - v8.0.0 */
 
 /**
  * Stores constants for the window types supported by the CSXS infrastructure.
@@ -427,8 +427,8 @@ function ApiVersion(major, minor, micro) {
  * Since 5.2.0
  *
  * @param menuItemLabel  The menu item label.
- * @param enabled        True if user wants to enable the menu item.
- * @param checked        True if user wants to check the menu item.
+ * @param enabled  		 True if user wants to enable the menu item.
+ * @param checked  		 True if user wants to check the menu item.
  *
  * @return MenuItemStatus object.
  */
@@ -445,8 +445,8 @@ function MenuItemStatus(menuItemLabel, enabled, checked) {
  * Since 5.2.0
  *
  * @param menuItemID     The menu item id.
- * @param enabled        True if user wants to enable the menu item.
- * @param checked        True if user wants to check the menu item.
+ * @param enabled  		 True if user wants to enable the menu item.
+ * @param checked  		 True if user wants to check the menu item.
  *
  * @return MenuItemStatus object.
  */
@@ -503,73 +503,6 @@ CSInterface.prototype.hostEnvironment = window.__adobe_cep__
 CSInterface.prototype.getHostEnvironment = function () {
   this.hostEnvironment = JSON.parse(window.__adobe_cep__.getHostEnvironment());
   return this.hostEnvironment;
-};
-
-/** Loads binary file created which is located at url asynchronously
-*
-*@param urlName url at which binary file is located. Local files should start with 'file://'
-*@param callback Optional. A callback function that returns after binary is loaded
-
-*@example
-* To create JS binary use command ./cep_compiler test.js test.bin
-* To load JS binary asyncronously
-*   var CSLib = new CSInterface();
-*   CSLib.loadBinAsync(url, function () { });
-*/
-CSInterface.prototype.loadBinAsync = function (urlName, callback) {
-  try {
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = "arraybuffer"; // make response as ArrayBuffer
-    xhr.open("GET", urlName, true);
-    xhr.onerror = function () {
-      console.log("Unable to load snapshot from given URL");
-      return false;
-    };
-    xhr.send();
-    xhr.onload = () => {
-      window.__adobe_cep__.loadSnapshot(xhr.response);
-      if (typeof callback === "function") {
-        callback();
-      } else if (typeof callback !== "undefined") {
-        console.log("Provided callback is not a function");
-      }
-    };
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-
-  return true;
-};
-
-/** Loads binary file created synchronously
-*
-*@param pathName the local path at which binary file is located
-
-*@example
-* To create JS binary use command ./cep_compiler test.js test.bin
-* To load JS binary syncronously
-*   var CSLib = new CSInterface();
-*   CSLib.loadBinSync(path);
-*/
-CSInterface.prototype.loadBinSync = function (pathName) {
-  try {
-    var OSVersion = this.getOSInformation();
-    if (pathName.startsWith("file://")) {
-      if (OSVersion.indexOf("Windows") >= 0) {
-        pathName = pathName.replace("file:///", "");
-      } else if (OSVersion.indexOf("Mac") >= 0) {
-        pathName = pathName.replace("file://", "");
-      }
-      window.__adobe_cep__.loadSnapshot(pathName);
-      return true;
-    }
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-  //control should not come here
-  return false;
 };
 
 /** Closes this extension. */
@@ -883,20 +816,6 @@ CSInterface.prototype.getScaleFactor = function () {
 };
 
 /**
- * Retrieves the scale factor of Monitor.
- *
- * Since 8.5.0
- *
- * @return value >= 1.0f
- * only available for windows machine
- */
-if (navigator.appVersion.toLowerCase().indexOf("windows") >= 0) {
-  CSInterface.prototype.getMonitorScaleFactor = function () {
-    return window.__adobe_cep__.getMonitorScaleFactor();
-  };
-}
-
-/**
  * Set a handler to detect any changes of scale factor. This only works on Mac.
  *
  * Since 4.2.0
@@ -962,9 +881,9 @@ CSInterface.prototype.setPanelFlyoutMenu = function (menu) {
  *
  * Since 5.2.0
  *
- * @param menuItemLabel The menu item label.
- * @param enabled       True to enable the item, false to disable it (gray it out).
- * @param checked       True to select the item, false to deselect it.
+ * @param menuItemLabel	The menu item label.
+ * @param enabled		True to enable the item, false to disable it (gray it out).
+ * @param checked		True to select the item, false to deselect it.
  *
  * @return false when the host application does not support this functionality (HostCapabilities.EXTENDED_PANEL_MENU is false).
  *         Fails silently if menu label is invalid.
@@ -996,8 +915,8 @@ CSInterface.prototype.updatePanelMenuItem = function (
  * - an item without menu ID or menu name is disabled and is not shown.
  * - if the item name is "---" (three hyphens) then it is treated as a separator. The menu ID in this case will always be NULL.
  * - Checkable attribute takes precedence over Checked attribute.
- * - a PNG icon. For optimal display results please supply a 16 x 16px icon as larger dimensions will increase the size of the menu item.
-     The Chrome extension contextMenus API was taken as a reference.
+ * - a PNG icon. For optimal display results please supply a 16 x 16px icon as larger dimensions will increase the size of the menu item. 
+     The Chrome extension contextMenus API was taken as a reference. 
      https://developer.chrome.com/extensions/contextMenus
  * - the items with icons and checkable items cannot coexist on the same menu level. The former take precedences over the latter.
  *
@@ -1034,7 +953,7 @@ CSInterface.prototype.setContextMenu = function (menu, callback) {
  * - an item without menu ID or menu name is disabled and is not shown.
  * - if the item label is "---" (three hyphens) then it is treated as a separator. The menu ID in this case will always be NULL.
  * - Checkable attribute takes precedence over Checked attribute.
- * - a PNG icon. For optimal display results please supply a 16 x 16px icon as larger dimensions will increase the size of the menu item.
+ * - a PNG icon. For optimal display results please supply a 16 x 16px icon as larger dimensions will increase the size of the menu item. 
      The Chrome extension contextMenus API was taken as a reference.
  * - the items with icons and checkable items cannot coexist on the same menu level. The former take precedences over the latter.
      https://developer.chrome.com/extensions/contextMenus
@@ -1044,7 +963,7 @@ CSInterface.prototype.setContextMenu = function (menu, callback) {
  *
  * @description An example menu JSON:
  *
- * {
+ * { 
  *      "menu": [
  *          {
  *              "id": "menuItemId1",
@@ -1107,9 +1026,9 @@ CSInterface.prototype.setContextMenuByJSON = function (menu, callback) {
  *
  * Since 5.2.0
  *
- * @param menuItemID    The menu item ID.
- * @param enabled       True to enable the item, false to disable it (gray it out).
- * @param checked       True to select the item, false to deselect it.
+ * @param menuItemID	The menu item ID.
+ * @param enabled		True to enable the item, false to disable it (gray it out).
+ * @param checked		True to select the item, false to deselect it.
  */
 CSInterface.prototype.updateContextMenuItem = function (
   menuItemID,
@@ -1172,7 +1091,7 @@ CSInterface.prototype.registerInvalidCertificateCallback = function (callback) {
 /**
  * Register an interest in some key events to prevent them from being sent to the host application.
  *
- * This function works with modeless extensions and panel extensions.
+ * This function works with modeless extensions and panel extensions. 
  * Generally all the key events will be sent to the host application for these two extensions if the current focused element
  * is not text input or dropdown,
  * If you want to intercept some key events and want them to be handled in the extension, please call this function
