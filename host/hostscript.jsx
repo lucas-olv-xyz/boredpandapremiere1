@@ -64,7 +64,7 @@ function addFilesToTimeline() {
     while (!txtFile.eof) {
       var line = txtFile.readln();
       if (line && line.length > 0) {
-        filePaths.push(line); // Adiciona os caminhos ao array na ordem correta
+        filePaths.push(line); // Adiciona os caminhos ao array
       }
     }
     txtFile.close();
@@ -72,6 +72,8 @@ function addFilesToTimeline() {
     if (filePaths.length === 0) {
       return "⚠️ O TXT está vazio ou não contém caminhos válidos.";
     }
+
+    filePaths.reverse(); // 🔥 INVERTE A ORDEM PARA GARANTIR QUE SEJA LIDO DO TOPO PARA BAIXO 🔥
 
     var project = app.project;
     var sequence = project.activeSequence;
