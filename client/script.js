@@ -19,3 +19,21 @@ document.getElementById("addToTimeline").addEventListener("click", function () {
     alert(result); // Exibe o resultado da importação
   });
 });
+
+document.getElementById("saveTXT").addEventListener("click", function () {
+  var filePaths = document.getElementById("filePaths").value;
+
+  if (!filePaths.trim()) {
+    alert("⚠️ Nenhum caminho foi inserido.");
+    return;
+  }
+
+  var csInterface = new CSInterface();
+  csInterface.evalScript(
+    "saveFilePathsToTXT(" + JSON.stringify(filePaths) + ")",
+    function (result) {
+      console.log("Resultado do JSX:", result);
+      alert(result);
+    }
+  );
+});

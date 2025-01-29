@@ -1,0 +1,296 @@
+function randomizeRowsByColors1() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // Lista das células que contêm as cores de interesse
+  const colorCells = [
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "A10",
+    "A11",
+  ]; // Adicione mais células conforme necessário
+
+  colorCells.forEach((cell) => {
+    randomizeRowsByColor(sheet, sheet.getRange(cell).getBackground());
+  });
+}
+
+function randomizeRowsByColor(sheet, targetColor) {
+  // Define o intervalo para procurar as células com a mesma cor (abaixo da linha 11)
+  const rangeToCheck = sheet.getRange("A12:A");
+  const backgrounds = rangeToCheck.getBackgrounds();
+
+  // Coleta as linhas que têm a mesma cor de fundo que a célula fornecida
+  const rowsToRandomize = [];
+  for (let i = 0; i < backgrounds.length; i++) {
+    if (backgrounds[i][0] === targetColor) {
+      rowsToRandomize.push(i + 12); // +12 para corresponder à linha real na planilha
+    }
+  }
+
+  // Se não houver linhas para randomizar, saia da função
+  if (rowsToRandomize.length === 0) return;
+
+  // Seleciona o intervalo das linhas para randomizar (A até H)
+  const rangesToRandomize = rowsToRandomize.map((row) => `A${row}:H${row}`);
+  const rangeList = sheet.getRangeList(rangesToRandomize);
+
+  // Aplica randomize para as linhas selecionadas
+  const values = rangeList.getRanges().map((range) => range.getValues());
+
+  // Embaralha as linhas selecionadas
+  const shuffledValues = shuffleArray(values);
+
+  // Escreve os valores embaralhados de volta
+  shuffledValues.forEach((rowValues, index) => {
+    sheet
+      .getRange(rowsToRandomize[index], 1, 1, rowValues[0].length)
+      .setValues(rowValues);
+  });
+}
+
+// Função auxiliar para embaralhar um array
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+--------------------------
+
+function concatenateValuesByColor() {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    // Define range
+    var rangeB = sheet.getRange("B12:B"); // Column B starting from B12
+    var valuesB = rangeB.getValues();
+  
+    var idList = [];
+  
+    // Extract and process the IDs from Column B
+    for (var i = 0; i < valuesB.length; i++) {
+      var cellValueB = valuesB[i][0];
+      if (cellValueB) { // Skip empty cells
+        var valueBeforeSpace = cellValueB.split(' ')[0]; // Get value before first space
+        idList.push(valueBeforeSpace);
+      }
+    }
+  
+    // Concatenate IDs into a single string separated by commas
+    var concatenatedIDs = idList.join(", ");
+  
+    // Output the concatenated string to cell B10
+    sheet.getRange("B10").setValue(concatenatedIDs);
+  }
+  
+  function onEdit(e) {
+    var range = e.range;
+  
+    if (range.getColumn() === 2 && range.getRow() >= 12) { // Edit in column B starting from row 12
+      concatenateValuesByColor(); // Run the concatenation function on any edit in column B
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      sheet.getRange("B10").setBackground("#d4f8d4"); // Set background to light green for B10 after concatenation
+    }
+  }
+  
+  
+  function triggerConcatenation() {
+    concatenateValuesByColor(); // Call the main function
+  }
+  
+  function exportToGoogleDoc() {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var concatenatedIDs = sheet.getRange("B10").getValue();
+    
+    if (concatenatedIDs && concatenatedIDs !== "N/A") { // Only proceed if there's a valid result in B10
+      var doc = DocumentApp.create("Exported Data");
+      var body = doc.getBody();
+      body.appendParagraph(concatenatedIDs);
+      
+      var docUrl = doc.getUrl();
+      Logger.log("Google Doc created with URL: " + docUrl);
+      
+      // Display the document URL as a clickable link in a dialog
+      var htmlOutput = HtmlService.createHtmlOutput('<a href="' + docUrl + '" target="_blank">Open the Google Doc</a>');
+      SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Document Created');
+    } else {
+      SpreadsheetApp.getUi().alert('B10 is either empty or contains an invalid value.');
+    }
+  }
+  
+  function findAndOutputSpreadsheetURL() {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var titleRow = 2; // Inicializa a linha para adicionar os títulos começando de A2
+    
+    // Limpa as células da coluna A (A2 até A8) antes de adicionar novos títulos
+    sheet.getRange('A2:A8').clearContent();
+  
+    // Loop through rows 2 to 8
+    for (var i = 2; i <= 8; i++) {
+      // Get the value from column E of the current row
+      var searchTerm = sheet.getRange('E' + i).getValue();
+      
+      // Check if the search term is not empty
+      if (searchTerm) {
+        // Create the search query for Google Drive
+        var query = 'title contains "' + searchTerm + '" and mimeType = "application/vnd.google-apps.spreadsheet"';
+        
+        // Search for files in Google Drive
+        var files = DriveApp.searchFiles(query);
+        
+        // Initialize the file URL and file name
+        var fileUrl = '';
+        var fileId = '';
+        var fileName = '';
+        
+        // If files are found, get the URL, ID, and name of the first one
+        if (files.hasNext()) {
+          var file = files.next();
+          fileUrl = file.getUrl();
+          fileId = file.getId();
+          fileName = file.getName();
+          
+          // Adiciona o nome do arquivo na coluna A (A2 até A8)
+          if (titleRow <= 8) {
+            sheet.getRange('A' + titleRow).setValue(fileName);
+            titleRow++;
+          }
+        } else {
+          fileName = 'No spreadsheet found with the name: ' + searchTerm;
+        }
+        
+        // Output the result as a smart chip to column F of the current row
+        if (fileId) {
+          // Use setRichTextValue to insert the file URL and name
+          var cell = sheet.getRange('F' + i);
+          cell.setValue(fileName); // Set the file name first
+          cell.setRichTextValue(SpreadsheetApp.newRichTextValue()
+            .setText(fileName)
+            .setLinkUrl(fileUrl)
+            .build());
+        } else {
+          sheet.getRange('F' + i).setValue(fileName);
+        }
+      }
+    }
+  }
+  
+  function colorCellsByID() {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    // Get the IDs and their corresponding colors from column A (A2 to A7)
+    var rangeA = sheet.getRange('A2:A7');
+    var valuesA = rangeA.getValues();
+    var backgroundsA = rangeA.getBackgrounds();
+    
+    var idColorMap = {};
+  
+    for (var i = 0; i < valuesA.length; i++) {
+      var cellValueA = valuesA[i][0];
+      if (cellValueA) { // Only process non-empty cells
+        var id = cellValueA.split(' ')[0]; // Get value before the first space
+        var color = backgroundsA[i][0];
+        idColorMap[id] = color;
+      }
+    }
+  
+    // Get the range of column B starting from B12
+    var rangeB = sheet.getRange("B12:B");
+    var valuesB = rangeB.getValues();
+    
+    // Loop through column B and color the entire row from column A to column I according to the ID color map
+    for (var i = 0; i < valuesB.length; i++) {
+      var cellValueB = valuesB[i][0];
+      if (cellValueB) {
+        for (var id in idColorMap) {
+          if (cellValueB.includes(id)) {
+            sheet.getRange("A" + (i + 12) + ":I" + (i + 12)).setBackground(idColorMap[id]);
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  // Test function to ensure it's working
+  function testColorCellsByID() {
+    colorCellsByID();
+  }
+  
+  
+  //importar os dados das planilhas..
+  function copyAllDataFromLinks1() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const range = sheet.getRange("F2:F8"); // Intervalo dos links
+    const cells = range.getRichTextValues(); // Obtém os valores ricos das células
+    
+    cells.forEach((cell, index) => {
+      const link = cell[0].getLinkUrl(); // Obtém o link
+      
+      if (link) {
+        Logger.log("Link encontrado na célula F" + (index + 2) + ": " + link);
+        
+        // Extrai o ID da planilha a partir do link
+        const spreadsheetId = extractSpreadsheetId(link); 
+        
+        if (spreadsheetId) {
+          Logger.log("ID da planilha encontrado: " + spreadsheetId);
+          
+          // Abre a planilha de destino
+          const targetSpreadsheet = SpreadsheetApp.openById(spreadsheetId);
+          
+          // Acessa a aba "25%"
+          const targetSheet = targetSpreadsheet.getSheetByName("25%");
+          
+          if (targetSheet) {
+            const lastRow = targetSheet.getLastRow(); // Captura a última linha preenchida
+            const data = targetSheet.getRange(3, 1, lastRow - 2, 9).getValues(); // Lê da coluna A (1) até a coluna I (9)
+  
+            Logger.log("Dados capturados: " + JSON.stringify(data));
+            // Converte a coluna de duração para texto explícito (supondo que esteja na coluna H)
+            data.forEach(row => {
+              row[7] = formatDurationAsString(row[7]); // Coluna H
+            });
+  
+            // Encontra a última linha preenchida na planilha atual
+            const lastFilledRow = sheet.getLastRow();
+            
+            // Define o intervalo de destino para colar os dados
+            const destinationRange = sheet.getRange(lastFilledRow + 1, 1, data.length, data[0].length);
+            destinationRange.setValues(data);
+          } else {
+            Logger.log("A aba '25%' não foi encontrada para o link na célula F" + (index + 2));
+          }
+        } else {
+          Logger.log("ID da planilha não encontrado no link na célula F" + (index + 2));
+        }
+      } else {
+        Logger.log("Nenhum link encontrado na célula F" + (index + 2));
+      }
+    });
+  }
+  
+  // Função para extrair o ID da planilha do link
+  function extractSpreadsheetId(url) {
+    const matches = url.match(/[-\w]{25,}/);
+    return matches ? matches[0] : null;
+  }
+  
+  // Função para converter a duração para uma string formatada
+  function formatDurationAsString(duration) {
+    if (duration instanceof Date) {
+      const hours = ('0' + duration.getUTCHours()).slice(-2);
+      const minutes = ('0' + duration.getUTCMinutes()).slice(-2);
+      const seconds = ('0' + duration.getUTCSeconds()).slice(-2);
+      return `${hours}:${minutes}:${seconds}.000`;
+    }
+    return duration;
+  }
+  

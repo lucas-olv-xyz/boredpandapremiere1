@@ -51,7 +51,7 @@ function importFilesFromTXT() {
 function addFilesToTimeline() {
   try {
     var txtPath =
-      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt"; // Caminho fixo do TXT
+      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt";
     var txtFile = new File(txtPath);
 
     if (!txtFile.exists) {
@@ -64,10 +64,10 @@ function addFilesToTimeline() {
     while (!txtFile.eof) {
       var line = txtFile.readln();
       if (line && line.length > 0) {
-        filePaths.push(line); // Adiciona os caminhos ao array
+        filePaths.push(line); // Adiciona os caminhos ao array na ordem correta
       }
     }
-    txtFile.close(); // Fecha o arquivo
+    txtFile.close();
 
     if (filePaths.length === 0) {
       return "⚠️ O TXT está vazio ou não contém caminhos válidos.";
@@ -93,7 +93,7 @@ function addFilesToTimeline() {
 
       if (item) {
         try {
-          videoTrack.insertClip(item, currentTime); // Adiciona o clipe à timeline
+          videoTrack.insertClip(item, currentTime); // Adiciona o clipe à timeline na ordem certa
           currentTime += item.getOutPoint().seconds; // Move o cursor para depois do clipe
         } catch (e) {
           return "❌ Erro ao adicionar " + clipName + " à timeline.";
@@ -103,7 +103,7 @@ function addFilesToTimeline() {
       }
     }
 
-    return "✅ Arquivos adicionados à timeline na ordem especificada.";
+    return "✅ Arquivos adicionados à timeline na ordem correta.";
   } catch (e) {
     return "Erro inesperado: " + e.toString();
   }
@@ -113,12 +113,38 @@ function addFilesToTimeline() {
 function findItemInProject(name) {
   var rootItem = app.project.rootItem;
   var numItems = rootItem.children.numItems;
+  var matchedItems = [];
 
   for (var i = 0; i < numItems; i++) {
     var item = rootItem.children[i];
     if (item && item.name === name) {
-      return item;
+      matchedItems.push(item); // Armazena todos os itens com o mesmo nome
     }
   }
+
+  if (matchedItems.length > 0) {
+    return matchedItems[0]; // Retorna o primeiro encontrado (garantindo a ordem do txt)
+  }
+
   return null;
+}
+
+function saveFilePathsToTXT(filePaths) {
+  try {
+    var txtPath =
+      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt"; // Caminho fixo
+    var txtFile = new File(txtPath);
+
+    if (!txtFile.open("w")) {
+      // Abre o arquivo no modo escrita
+      return "❌ Erro ao abrir o arquivo TXT para escrita.";
+    }
+
+    txtFile.write(filePaths.replace(/\n/g, "\r")); // Escreve os caminhos no arquivo
+    txtFile.close();
+
+    return "✅ Caminhos salvos com sucesso!";
+  } catch (e) {
+    return "❌ Erro inesperado: " + e.toString();
+  }
 }

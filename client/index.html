@@ -10,6 +10,13 @@
           text-align: center;
           padding: 20px;
       }
+      textarea {
+          width: 80%;
+          height: 100px;
+          margin-bottom: 10px;
+          font-size: 14px;
+          padding: 5px;
+      }
       button {
           font-size: 16px;
           padding: 10px;
@@ -20,7 +27,13 @@
   </head>
   <body>
     <h3>Meu Painel no Premiere</h3>
-    <button id="showMessage">Clique Aqui</button>
+
+    <textarea
+      id="filePaths"
+      placeholder="Cole os caminhos dos arquivos aqui, um por linha..."
+    ></textarea>
+    <button id="saveTXT">Salvar TXT</button>
+
     <button id="importTXT">Importar via TXT</button>
     <button id="addToTimeline">Adicionar à Timeline</button>
 
