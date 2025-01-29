@@ -1,21 +1,20 @@
-function importFilesFromFolder() {
+function importFilesFromPredefinedFolder() {
   try {
-    var folder = Folder.selectDialog(
-      "Selecione a pasta com os arquivos para importar"
-    );
+    var folderPath = "C:/Users/theel/Videos/premiere_test"; // Defina seu caminho fixo aqui
+    var folder = new Folder(folderPath);
 
-    if (!folder) {
-      return "Nenhuma pasta selecionada.";
+    if (!folder.exists) {
+      return "A pasta especificada não existe: " + folderPath;
     }
 
     var files = folder.getFiles();
     var project = app.project;
 
     if (!files.length) {
-      return "Nenhum arquivo encontrado.";
+      return "Nenhum arquivo encontrado na pasta.";
     }
 
-    var importBin = project.rootItem.createBin("Arquivos Importados");
+    var importBin = project.rootItem.createBin("Importação Automática");
 
     var importedFiles = 0;
 
@@ -30,7 +29,7 @@ function importFilesFromFolder() {
       }
     }
 
-    return importedFiles + " arquivos importados!";
+    return importedFiles + " arquivos importados de " + folderPath;
   } catch (e) {
     return "Erro inesperado: " + e.toString();
   }

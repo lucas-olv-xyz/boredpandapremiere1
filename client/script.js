@@ -1,14 +1,13 @@
-document.getElementById("showMessage").addEventListener("click", function () {
-  alert("Botão clicado! 🎬");
-});
-
 document.getElementById("importFiles").addEventListener("click", function () {
   var csInterface = new CSInterface();
 
-  // Verifica se está rodando corretamente no Premiere
-  console.log("Tentando executar o script JSX...");
+  console.log("Executando importação automática...");
 
-  csInterface.evalScript("importFilesFromFolder()", function (result) {
-    console.log("Resultado do JSX:", result);
-  });
+  csInterface.evalScript(
+    "importFilesFromPredefinedFolder()",
+    function (result) {
+      console.log("Resultado do JSX:", result);
+      alert(result); // Exibe o resultado da importação
+    }
+  );
 });
