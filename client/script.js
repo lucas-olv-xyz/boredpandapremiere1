@@ -1,13 +1,10 @@
-document.getElementById("importFiles").addEventListener("click", function () {
+document.getElementById("importTXT").addEventListener("click", function () {
   var csInterface = new CSInterface();
 
-  console.log("Executando importação automática...");
+  console.log("Executando importação via TXT...");
 
-  csInterface.evalScript(
-    "importFilesFromPredefinedFolder()",
-    function (result) {
-      console.log("Resultado do JSX:", result);
-      alert(result); // Exibe o resultado da importação
-    }
-  );
+  csInterface.evalScript("importFilesFromTXT()", function (result) {
+    console.log("Resultado do JSX:", result);
+    alert(result); // Exibe o resultado da importação
+  });
 });

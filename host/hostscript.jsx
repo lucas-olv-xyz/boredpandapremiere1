@@ -1,35 +1,49 @@
-function importFilesFromPredefinedFolder() {
+function importFilesFromTXT() {
   try {
-    var folderPath = "C:/Users/theel/Videos/premiere_test"; // Defina seu caminho fixo aqui
-    var folder = new Folder(folderPath);
+    var txtPath =
+      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt"; // Caminho fixo do TXT
+    var txtFile = new File(txtPath);
 
-    if (!folder.exists) {
-      return "A pasta especificada não existe: " + folderPath;
+    if (!txtFile.exists) {
+      return "❌ O arquivo TXT não foi encontrado: " + txtPath;
     }
 
-    var files = folder.getFiles();
+    txtFile.open("r"); // Abre o arquivo no modo de leitura
+    var filePaths = [];
+
+    while (!txtFile.eof) {
+      var line = txtFile.readln(); // Lê uma linha do TXT
+
+      if (line && line.length > 0) {
+        // Verifica se a linha não está vazia
+        filePaths.push(line); // Adiciona ao array
+      }
+    }
+    txtFile.close(); // Fecha o arquivo após a leitura
+
+    if (filePaths.length === 0) {
+      return "⚠️ O TXT está vazio ou não contém caminhos válidos.";
+    }
+
     var project = app.project;
-
-    if (!files.length) {
-      return "Nenhum arquivo encontrado na pasta.";
-    }
-
-    var importBin = project.rootItem.createBin("Importação Automática");
-
+    var importBin = project.rootItem.createBin("Importação via TXT");
     var importedFiles = 0;
 
-    for (var i = 0; i < files.length; i++) {
-      if (files[i] instanceof File) {
+    for (var i = 0; i < filePaths.length; i++) {
+      var file = new File(filePaths[i]);
+      if (file.exists) {
         try {
-          project.importFiles([files[i].fsName], true, importBin, false);
+          project.importFiles([file.fsName], true, importBin, false);
           importedFiles++;
         } catch (e) {
-          return "Erro ao importar: " + files[i].fsName;
+          return "Erro ao importar: " + file.fsName;
         }
+      } else {
+        return "❌ Arquivo não encontrado: " + filePaths[i];
       }
     }
 
-    return importedFiles + " arquivos importados de " + folderPath;
+    return importedFiles + " arquivos importados via TXT.";
   } catch (e) {
     return "Erro inesperado: " + e.toString();
   }
