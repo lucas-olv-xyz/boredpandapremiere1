@@ -37,3 +37,29 @@ document.getElementById("saveTXT").addEventListener("click", function () {
     }
   );
 });
+
+document
+  .getElementById("addTransitions")
+  .addEventListener("click", function () {
+    var csInterface = new CSInterface();
+
+    console.log("Adicionando transições entre os vídeos...");
+
+    csInterface.evalScript("addTransitionsAbove()", function (result) {
+      console.log("Resultado do JSX:", result);
+      alert(result); // Exibe o resultado da importação
+    });
+  });
+
+document
+  .getElementById("addSubscribeLike")
+  .addEventListener("click", function () {
+    var csInterface = new CSInterface();
+
+    console.log("Adicionando overlays de Subscribe e Like...");
+
+    csInterface.evalScript("addSubscribeAndLike()", function (result) {
+      console.log("Resultado do JSX:", result);
+      alert(result); // Exibe o resultado da importação
+    });
+  });
