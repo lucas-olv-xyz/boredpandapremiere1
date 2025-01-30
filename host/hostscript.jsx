@@ -161,13 +161,14 @@ function addTransitionsAbove() {
     var videoTracks = sequence.videoTracks;
     var numTracks = videoTracks.numTracks;
 
-    // Criar uma nova trilha de vídeo acima da principal, se necessário
+    // Criar uma trilha de vídeo acima da principal, se necessário
     var transitionTrack;
     if (numTracks < 2) {
       sequence.addVideoTrack();
-      transitionTrack = videoTracks[1]; // Segunda trilha (track 1, pois track 0 é a principal)
+      $.sleep(500); // 🔥 Delay para garantir que a trilha seja criada
+      transitionTrack = sequence.videoTracks[1];
     } else {
-      transitionTrack = videoTracks[1]; // Usar a trilha acima da principal
+      transitionTrack = videoTracks[1];
     }
 
     var primaryTrack = videoTracks[0]; // Primeira trilha onde estão os vídeos
@@ -178,23 +179,25 @@ function addTransitionsAbove() {
     }
 
     var transitionPath =
-      "C:/Users/theel/Videos/premiere_test/transitions/A1.mov"; // Caminho da transição
+      "C:/Users/theel/Videos/premiere_test/transitions/A1.mov";
+    var outroPath = "C:/Users/theel/Videos/premiere_test/transitions/outro.mp4";
+
     var transitionFile = new File(transitionPath);
+    var outroFile = new File(outroPath);
 
     if (!transitionFile.exists) {
       return "❌ O arquivo de transição não foi encontrado: " + transitionPath;
     }
+    if (!outroFile.exists) {
+      return "❌ O arquivo 'Outro' não foi encontrado: " + outroPath;
+    }
 
-    // Importar a transição para o projeto (se ainda não estiver)
-    var transitionItem = findItemInProject("A1.mov");
-    if (!transitionItem) {
-      app.project.importFiles(
-        [transitionFile.fsName],
-        true,
-        app.project.rootItem,
-        false
-      );
-      transitionItem = findItemInProject("A1.mov");
+    // Importar os arquivos, se necessário
+    var transitionItem = findOrImportFile("A1.mov", transitionFile);
+    var outroItem = findOrImportFile("outro.mp4", outroFile);
+
+    if (!transitionItem || !outroItem) {
+      return "❌ Erro ao importar os arquivos.";
     }
 
     var currentTime = 0;
@@ -216,13 +219,36 @@ function addTransitionsAbove() {
       }
     }
 
-    return "✅ Transições adicionadas entre os vídeos na trilha superior.";
+    // 🔥 Agora adicionamos o "Outro" depois do último vídeo
+    var lastClip = primaryTrack.clips[numClips - 1];
+    if (lastClip) {
+      var outroPosition = lastClip.end.seconds;
+      transitionTrack.insertClip(outroItem, outroPosition);
+    }
+
+    return "✅ Transições adicionadas e 'Outro' colocado no final.";
   } catch (e) {
     return "Erro inesperado: " + e.toString();
   }
 }
 
-// Função auxiliar para encontrar um arquivo pelo nome no projeto
+// 🔥 Função para encontrar ou importar um arquivo
+function findOrImportFile(fileName, fileObject) {
+  var item = findItemInProject(fileName);
+  if (!item) {
+    app.project.importFiles(
+      [fileObject.fsName],
+      true,
+      app.project.rootItem,
+      false
+    );
+    $.sleep(500); // 🔥 Delay para garantir que a importação foi concluída
+    item = findItemInProject(fileName);
+  }
+  return item;
+}
+
+// Função auxiliar para encontrar um arquivo no projeto
 function findItemInProject(name) {
   var rootItem = app.project.rootItem;
   var numItems = rootItem.children.numItems;
@@ -234,79 +260,6 @@ function findItemInProject(name) {
     }
   }
   return null;
-}
-
-function addSubscribeAndLike() {
-  try {
-    var sequence = app.project.activeSequence;
-    if (!sequence) {
-      return "❌ Nenhuma sequência ativa encontrada. Crie uma sequência primeiro.";
-    }
-
-    var videoTracks = sequence.videoTracks;
-    var numTracks = videoTracks.numTracks;
-
-    // Criar uma nova trilha de vídeo acima da principal, se necessário
-    var overlayTrack;
-    if (numTracks < 2) {
-      sequence.addVideoTrack();
-      $.sleep(500); // 🔥 Pequeno delay para garantir que a trilha seja criada
-      overlayTrack = sequence.videoTracks[1];
-    } else {
-      overlayTrack = videoTracks[1];
-    }
-
-    var primaryTrack = videoTracks[0];
-    var numClips = primaryTrack.clips.numItems;
-
-    if (numClips < 2) {
-      return "⚠️ Não há clipes suficientes para adicionar overlays.";
-    }
-
-    var subscribePath = "C:/MeusArquivos/Overlays/Subscribe.mp4";
-    var likePath = "C:/MeusArquivos/Overlays/Like.mp4";
-
-    var subscribeFile = new File(subscribePath);
-    var likeFile = new File(likePath);
-
-    if (!subscribeFile.exists || !likeFile.exists) {
-      return "❌ Arquivos de overlay não encontrados.";
-    }
-
-    // 🔥 Agora importamos primeiro e só depois tentamos usar os arquivos
-    var subscribeItem = findOrImportFile("Subscribe.mp4", subscribeFile);
-    var likeItem = findOrImportFile("Like.mp4", likeFile);
-
-    if (!subscribeItem || !likeItem) {
-      return "❌ Erro ao importar os arquivos de overlay.";
-    }
-
-    var overlayIndex = 0;
-
-    // Alternar entre Subscribe e Like nos vídeos certos
-    for (var i = 0; i < numClips; i += 2) {
-      var clip = primaryTrack.clips[i];
-
-      if (clip) {
-        var clipMiddle = clip.start.seconds + clip.duration.seconds / 2;
-
-        // Alternar entre Subscribe e Like
-        var overlayItem = overlayIndex % 2 === 0 ? subscribeItem : likeItem;
-
-        try {
-          overlayTrack.insertClip(overlayItem, clipMiddle);
-        } catch (e) {
-          return "❌ Erro ao adicionar overlay na timeline.";
-        }
-
-        overlayIndex++;
-      }
-    }
-
-    return "✅ Overlays 'Inscreva-se' e 'Like' adicionados na trilha superior.";
-  } catch (e) {
-    return "Erro inesperado: " + e.toString();
-  }
 }
 
 function addSubscribeAndLike() {

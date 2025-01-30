@@ -43,11 +43,11 @@ document
   .addEventListener("click", function () {
     var csInterface = new CSInterface();
 
-    console.log("Adicionando transições entre os vídeos...");
+    console.log("Adicionando transições e 'Outro'...");
 
     csInterface.evalScript("addTransitionsAbove()", function (result) {
       console.log("Resultado do JSX:", result);
-      alert(result); // Exibe o resultado da importação
+      alert(result);
     });
   });
 
