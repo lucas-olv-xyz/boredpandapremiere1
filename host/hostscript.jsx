@@ -58,13 +58,13 @@ function addFilesToTimeline() {
       return "❌ O arquivo TXT não foi encontrado: " + txtPath;
     }
 
-    txtFile.open("r"); // Abre o arquivo no modo de leitura
+    txtFile.open("r");
     var filePaths = [];
 
     while (!txtFile.eof) {
       var line = txtFile.readln();
       if (line && line.length > 0) {
-        filePaths.push(line); // Adiciona os caminhos ao array
+        filePaths.push(line);
       }
     }
     txtFile.close();
@@ -73,7 +73,7 @@ function addFilesToTimeline() {
       return "⚠️ O TXT está vazio ou não contém caminhos válidos.";
     }
 
-    filePaths.reverse(); // 🔥 INVERTE A ORDEM PARA GARANTIR QUE SEJA LIDO DO TOPO PARA BAIXO 🔥
+    filePaths.reverse();
 
     var project = app.project;
     var sequence = project.activeSequence;
@@ -82,21 +82,22 @@ function addFilesToTimeline() {
       return "❌ Nenhuma sequência ativa encontrada. Crie uma sequência primeiro.";
     }
 
-    var videoTrack = sequence.videoTracks[0]; // Obtém a trilha de vídeo
+    var videoTrack = sequence.videoTracks[0];
     if (!videoTrack) {
       return "❌ Nenhuma trilha de vídeo disponível.";
     }
 
-    var currentTime = sequence.getPlayerPosition(); // Obtém a posição atual na timeline
+    var currentTime = sequence.getPlayerPosition();
 
+    // 🔥 Apenas adiciona os vídeos sem mexer em layout
     for (var i = 0; i < filePaths.length; i++) {
-      var clipName = filePaths[i].split("/").pop().split("\\").pop(); // Obtém apenas o nome do arquivo
+      var clipName = filePaths[i].split("/").pop().split("\\").pop();
       var item = findItemInProject(clipName);
 
       if (item) {
         try {
-          videoTrack.insertClip(item, currentTime); // Adiciona o clipe à timeline na ordem certa
-          currentTime += item.getOutPoint().seconds; // Move o cursor para depois do clipe
+          videoTrack.insertClip(item, currentTime);
+          currentTime += item.getOutPoint().seconds;
         } catch (e) {
           return "❌ Erro ao adicionar " + clipName + " à timeline.";
         }
@@ -105,7 +106,7 @@ function addFilesToTimeline() {
       }
     }
 
-    return "✅ Arquivos adicionados à timeline na ordem correta.";
+    return "✅ Arquivos adicionados à timeline sem modificar layout.";
   } catch (e) {
     return "Erro inesperado: " + e.toString();
   }
