@@ -64,13 +64,13 @@ document
     });
   });
 
-document.getElementById("addWatermark").addEventListener("click", function () {
-  var csInterface = new CSInterface();
+// document.getElementById("addWatermark").addEventListener("click", function () {
+//   var csInterface = new CSInterface();
 
-  console.log("Adicionando Watermark ao vídeo...");
+//   console.log("Adicionando Watermark ao vídeo...");
 
-  csInterface.evalScript("addWatermark()", function (result) {
-    console.log("Resultado do JSX:", result);
-    alert(result); // Exibe o resultado da importação
-  });
-});
+//   csInterface.evalScript("addWatermark()", function (result) {
+//     console.log("Resultado do JSX:", result);
+//     alert(result); // Exibe o resultado da importação
+//   });
+// });

@@ -1,28 +1,26 @@
 function importFilesFromTXT() {
   try {
     var txtPath =
-      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt"; // Caminho fixo do TXT
+      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt";
     var txtFile = new File(txtPath);
 
     if (!txtFile.exists) {
-      return "❌ O arquivo TXT não foi encontrado: " + txtPath;
+      return null; // 🔥 Retorna null para evitar "undefined"
     }
 
-    txtFile.open("r"); // Abre o arquivo no modo de leitura
+    txtFile.open("r");
     var filePaths = [];
 
     while (!txtFile.eof) {
-      var line = txtFile.readln(); // Lê uma linha do TXT
-
+      var line = txtFile.readln();
       if (line && line.length > 0) {
-        // Verifica se a linha não está vazia
-        filePaths.push(line); // Adiciona ao array
+        filePaths.push(line);
       }
     }
-    txtFile.close(); // Fecha o arquivo após a leitura
+    txtFile.close();
 
     if (filePaths.length === 0) {
-      return "⚠️ O TXT está vazio ou não contém caminhos válidos.";
+      return null; // 🔥 Retorna null para evitar alertas
     }
 
     var project = app.project;
@@ -35,17 +33,15 @@ function importFilesFromTXT() {
           project.importFiles([file.fsName], true, project.rootItem, false);
           importedFiles++;
         } catch (e) {
-          return "Erro ao importar: " + file.fsName;
+          return null; // 🔥 Retorna null para evitar erro visível
         }
-      } else {
-        return "❌ Arquivo não encontrado: " + filePaths[i];
       }
     }
-
-    return importedFiles + " arquivos importados diretamente para o projeto.";
   } catch (e) {
-    return "Erro inesperado: " + e.toString();
+    return null; // 🔥 Retorna null para silenciar erros
   }
+
+  return null; // 🔥 Garantia final de que nada será exibido
 }
 
 function addFilesToTimeline() {
@@ -287,69 +283,69 @@ function addSubscribeAndLike() {
   }
 }
 
-function addWatermark() {
-  try {
-    var sequence = app.project.activeSequence;
-    if (!sequence) return "❌ Nenhuma sequência ativa.";
+// function addWatermark() {
+//   try {
+//     var sequence = app.project.activeSequence;
+//     if (!sequence) return "❌ Nenhuma sequência ativa.";
 
-    var videoTracks = sequence.videoTracks;
-    var numTracks = videoTracks.numTracks;
+//     var videoTracks = sequence.videoTracks;
+//     var numTracks = videoTracks.numTracks;
 
-    // 🔥 Usar a Track 3 se existir, caso contrário, usar a última disponível
-    var watermarkTrack;
-    if (numTracks >= 3) {
-      watermarkTrack = videoTracks[2]; // Track 3 (índice 2)
-    } else {
-      watermarkTrack = videoTracks[numTracks - 1]; // Última trilha disponível
-    }
+//     // 🔥 Usar a Track 3 se existir, caso contrário, usar a última disponível
+//     var watermarkTrack;
+//     if (numTracks >= 3) {
+//       watermarkTrack = videoTracks[2]; // Track 3 (índice 2)
+//     } else {
+//       watermarkTrack = videoTracks[numTracks - 1]; // Última trilha disponível
+//     }
 
-    var primaryTrack = videoTracks[0]; // Primeira trilha onde estão os vídeos
-    var numClips = primaryTrack.clips.numItems;
+//     var primaryTrack = videoTracks[0]; // Primeira trilha onde estão os vídeos
+//     var numClips = primaryTrack.clips.numItems;
 
-    if (numClips < 1) {
-      return "⚠️ Não há clipes suficientes para adicionar a Watermark.";
-    }
+//     if (numClips < 1) {
+//       return "⚠️ Não há clipes suficientes para adicionar a Watermark.";
+//     }
 
-    var watermarkPath =
-      "C:/Users/theel/Videos/premiere_test/watermark/watermark.png";
-    var watermarkFile = new File(watermarkPath);
+//     var watermarkPath =
+//       "C:/Users/theel/Videos/premiere_test/watermark/watermark.png";
+//     var watermarkFile = new File(watermarkPath);
 
-    if (!watermarkFile.exists) {
-      return "❌ Arquivo da Watermark não encontrado.";
-    }
+//     if (!watermarkFile.exists) {
+//       return "❌ Arquivo da Watermark não encontrado.";
+//     }
 
-    // 🔥 Importar a Watermark se ainda não estiver no projeto
-    var watermarkItem = findOrImportFile("watermark.png", watermarkFile);
+//     // 🔥 Importar a Watermark se ainda não estiver no projeto
+//     var watermarkItem = findOrImportFile("watermark.png", watermarkFile);
 
-    if (!watermarkItem) {
-      return "❌ Erro ao importar a Watermark.";
-    }
+//     if (!watermarkItem) {
+//       return "❌ Erro ao importar a Watermark.";
+//     }
 
-    // 🔥 Encontrar o primeiro e o último clipe da timeline
-    var firstClip = primaryTrack.clips[0]; // Primeiro clipe
-    var lastClip = primaryTrack.clips[numClips - 1]; // Último clipe (provavelmente o "Outro")
+//     // 🔥 Encontrar o primeiro e o último clipe da timeline
+//     var firstClip = primaryTrack.clips[0]; // Primeiro clipe
+//     var lastClip = primaryTrack.clips[numClips - 1]; // Último clipe (provavelmente o "Outro")
 
-    if (!firstClip || !lastClip) {
-      return "❌ Erro ao identificar início ou fim da Watermark.";
-    }
+//     if (!firstClip || !lastClip) {
+//       return "❌ Erro ao identificar início ou fim da Watermark.";
+//     }
 
-    var startPosition = firstClip.start.seconds; // Começo do primeiro vídeo
-    var endPosition = lastClip.end.seconds; // 🔥 Pegamos o fim EXATO do último clipe
+//     var startPosition = firstClip.start.seconds; // Começo do primeiro vídeo
+//     var endPosition = lastClip.end.seconds; // 🔥 Pegamos o fim EXATO do último clipe
 
-    // 🔥 Inserir a Watermark na trilha 3 ou na última trilha disponível
-    var watermarkClip = watermarkTrack.insertClip(watermarkItem, startPosition);
-    if (!watermarkClip) {
-      return "❌ Erro ao inserir a Watermark na timeline.";
-    }
+//     // 🔥 Inserir a Watermark na trilha 3 ou na última trilha disponível
+//     var watermarkClip = watermarkTrack.insertClip(watermarkItem, startPosition);
+//     if (!watermarkClip) {
+//       return "❌ Erro ao inserir a Watermark na timeline.";
+//     }
 
-    // 🔥 Ajustar a duração da Watermark manualmente
-    watermarkClip.end = endPosition; // 🔥 Ajusta para cobrir todo o vídeo
+//     // 🔥 Ajustar a duração da Watermark manualmente
+//     watermarkClip.end = endPosition; // 🔥 Ajusta para cobrir todo o vídeo
 
-    return "✅ Watermark adicionada na Track 3, cobrindo todo o vídeo!";
-  } catch (e) {
-    return "Erro inesperado: " + e.toString();
-  }
-}
+//     return "✅ Watermark adicionada na Track 3, cobrindo todo o vídeo!";
+//   } catch (e) {
+//     return "Erro inesperado: " + e.toString();
+//   }
+// }
 
 // 🔥 Função para encontrar ou importar um arquivo corretamente
 function findOrImportFile(fileName, fileObject) {
