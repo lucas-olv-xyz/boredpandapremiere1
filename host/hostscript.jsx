@@ -57,7 +57,7 @@ function addFilesToTimeline() {
     var txtFile = new File(txtPath);
 
     if (!txtFile.exists) {
-      return "❌ O arquivo TXT não foi encontrado: " + txtPath;
+      return "❌ Error: TXT file not found: " + txtPath;
     }
 
     txtFile.open("r");
@@ -72,7 +72,7 @@ function addFilesToTimeline() {
     txtFile.close();
 
     if (filePaths.length === 0) {
-      return "⚠️ O TXT está vazio ou não contém caminhos válidos.";
+      return "⚠️ Warning: The TXT file is empty or contains no valid paths.";
     }
 
     filePaths.reverse();
@@ -81,17 +81,18 @@ function addFilesToTimeline() {
     var sequence = project.activeSequence;
 
     if (!sequence) {
-      return "❌ Nenhuma sequência ativa encontrada. Crie uma sequência primeiro.";
+      return "❌ Error: No active sequence found. Please create a sequence first.";
     }
 
     var videoTrack = sequence.videoTracks[0];
     if (!videoTrack) {
-      return "❌ Nenhuma trilha de vídeo disponível.";
+      return "❌ Error: No available video track.";
     }
 
     var currentTime = sequence.getPlayerPosition();
+    var addedClips = 0;
 
-    // 🔥 Apenas adiciona os vídeos sem mexer em layout
+    // 🔥 Add videos to timeline without modifying layout
     for (var i = 0; i < filePaths.length; i++) {
       var clipName = filePaths[i].split("/").pop().split("\\").pop();
       var item = findItemInProject(clipName);
@@ -100,37 +101,42 @@ function addFilesToTimeline() {
         try {
           videoTrack.insertClip(item, currentTime);
           currentTime += item.getOutPoint().seconds;
+          addedClips++;
         } catch (e) {
-          return "❌ Erro ao adicionar " + clipName + " à timeline.";
+          return "❌ Error: Failed to add " + clipName + " to the timeline.";
         }
       } else {
-        return "❌ Arquivo não encontrado no projeto: " + clipName;
+        return "❌ Error: File not found in the project: " + clipName;
       }
     }
 
-    return "✅ Arquivos adicionados à timeline sem modificar layout.";
+    if (addedClips === 0) {
+      return "⚠️ Warning: No clips were added to the timeline.";
+    }
+
+    return "Success: " + addedClips + " clips added to the timeline.";
   } catch (e) {
-    return "Erro inesperado: " + e.toString();
+    return "❌ Unexpected error: " + e.toString();
   }
 }
 
 function saveFilePathsToTXT(filePaths) {
   try {
     var txtPath =
-      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt"; // Caminho fixo
+      "C:/Program Files (x86)/Common Files/Adobe/CEP/extensions/boredpanda/arquivos.txt"; // Fixed path
     var txtFile = new File(txtPath);
 
     if (!txtFile.open("w")) {
-      // Abre o arquivo no modo escrita
-      return "❌ Erro ao abrir o arquivo TXT para escrita.";
+      // Open the file in write mode
+      return "❌ Error: Failed to open the TXT file for writing.";
     }
 
-    txtFile.write(filePaths.replace(/\n/g, "\r")); // Escreve os caminhos no arquivo
+    txtFile.write(filePaths.replace(/\n/g, "\r")); // Write the file paths to the TXT
     txtFile.close();
 
-    return "✅ Caminhos salvos com sucesso!";
+    return "Success: File paths saved successfully!";
   } catch (e) {
-    return "❌ Erro inesperado: " + e.toString();
+    return "❌ Unexpected error: " + e.toString();
   }
 }
 
@@ -138,27 +144,27 @@ function addTransitionsAbove() {
   try {
     var sequence = app.project.activeSequence;
     if (!sequence) {
-      return "❌ Nenhuma sequência ativa encontrada. Crie uma sequência primeiro.";
+      return "❌ Error: No active sequence found. Please create a sequence first.";
     }
 
     var videoTracks = sequence.videoTracks;
     var numTracks = videoTracks.numTracks;
 
-    // Criar uma trilha de vídeo acima da principal, se necessário
+    // Create a video track above the main one if needed
     var transitionTrack;
     if (numTracks < 2) {
       sequence.addVideoTrack();
-      $.sleep(500); // 🔥 Delay para garantir que a trilha seja criada
+      $.sleep(500); // 🔥 Delay to ensure the track is created
       transitionTrack = sequence.videoTracks[1];
     } else {
       transitionTrack = videoTracks[1];
     }
 
-    var primaryTrack = videoTracks[0]; // Primeira trilha onde estão os vídeos
+    var primaryTrack = videoTracks[0]; // First track where videos are located
     var numClips = primaryTrack.clips.numItems;
 
     if (numClips < 2) {
-      return "⚠️ Não há clipes suficientes para adicionar transições.";
+      return "⚠️ Warning: Not enough clips to add transitions.";
     }
 
     var transitionPath =
@@ -169,23 +175,23 @@ function addTransitionsAbove() {
     var outroFile = new File(outroPath);
 
     if (!transitionFile.exists) {
-      return "❌ O arquivo de transição não foi encontrado: " + transitionPath;
+      return "❌ Error: Transition file not found: " + transitionPath;
     }
     if (!outroFile.exists) {
-      return "❌ O arquivo 'Outro' não foi encontrado: " + outroPath;
+      return "❌ Error: 'Outro' file not found: " + outroPath;
     }
 
-    // Importar os arquivos, se necessário
+    // Import files if necessary
     var transitionItem = findOrImportFile("A1.mov", transitionFile);
     var outroItem = findOrImportFile("outro.mp4", outroFile);
 
     if (!transitionItem || !outroItem) {
-      return "❌ Erro ao importar os arquivos.";
+      return "❌ Error importing transition or outro files.";
     }
 
     var currentTime = 0;
 
-    // Adicionar transições entre os vídeos
+    // Add transitions between clips
     for (var i = 0; i < numClips - 1; i++) {
       var clip = primaryTrack.clips[i];
       var nextClip = primaryTrack.clips[i + 1];
@@ -194,7 +200,7 @@ function addTransitionsAbove() {
         var clipEnd = clip.end.seconds;
         var transitionDuration = transitionItem.getOutPoint().seconds;
 
-        // Adiciona a transição na trilha acima, no meio entre os vídeos
+        // Place the transition above, between the clips
         transitionTrack.insertClip(
           transitionItem,
           clipEnd - transitionDuration / 2
@@ -202,16 +208,16 @@ function addTransitionsAbove() {
       }
     }
 
-    // 🔥 Agora adicionamos o "Outro" depois do último vídeo
+    // 🔥 Add the "Outro" after the last video
     var lastClip = primaryTrack.clips[numClips - 1];
     if (lastClip) {
       var outroPosition = lastClip.end.seconds;
       transitionTrack.insertClip(outroItem, outroPosition);
     }
 
-    return "✅ Transições adicionadas e 'Outro' colocado no final.";
+    return "✅ Success: Transitions added and 'Outro' placed at the end.";
   } catch (e) {
-    return "Erro inesperado: " + e.toString();
+    return "❌ Unexpected error: " + e.toString();
   }
 }
 
@@ -219,17 +225,17 @@ function addSubscribeAndLike() {
   try {
     var sequence = app.project.activeSequence;
     if (!sequence) {
-      return "❌ Nenhuma sequência ativa encontrada. Crie uma sequência primeiro.";
+      return "❌ Error: No active sequence found. Please create a sequence first.";
     }
 
     var videoTracks = sequence.videoTracks;
     var numTracks = videoTracks.numTracks;
 
-    // Criar uma nova trilha de vídeo acima da principal, se necessário
+    // Create a new video track above the main one if needed
     var overlayTrack;
     if (numTracks < 2) {
       sequence.addVideoTrack();
-      $.sleep(500); // 🔥 Pequeno delay para garantir que a trilha seja criada
+      $.sleep(500); // 🔥 Small delay to ensure the track is created
       overlayTrack = sequence.videoTracks[1];
     } else {
       overlayTrack = videoTracks[1];
@@ -239,7 +245,7 @@ function addSubscribeAndLike() {
     var numClips = primaryTrack.clips.numItems;
 
     if (numClips < 2) {
-      return "⚠️ Não há clipes suficientes para adicionar overlays.";
+      return "⚠️ Warning: Not enough clips to add overlays.";
     }
 
     var subscribePath =
@@ -250,42 +256,42 @@ function addSubscribeAndLike() {
     var likeFile = new File(likePath);
 
     if (!subscribeFile.exists || !likeFile.exists) {
-      return "❌ Arquivos de overlay não encontrados.";
+      return "❌ Error: Overlay files not found.";
     }
 
-    // 🔥 Agora importamos primeiro e só depois tentamos usar os arquivos
+    // 🔥 Import first, then use the files
     var subscribeItem = findOrImportFile("Subscribe.mov", subscribeFile);
     var likeItem = findOrImportFile("Like.mov", likeFile);
 
     if (!subscribeItem || !likeItem) {
-      return "❌ Erro ao importar os arquivos de overlay.";
+      return "❌ Error importing overlay files.";
     }
 
     var overlayIndex = 0;
 
-    // Alternar entre Subscribe e Like nos vídeos certos
+    // Alternate between Subscribe and Like overlays
     for (var i = 0; i < numClips; i += 2) {
       var clip = primaryTrack.clips[i];
 
       if (clip) {
         var clipMiddle = clip.start.seconds + clip.duration.seconds * 0.75;
 
-        // Alternar entre Subscribe e Like
+        // Alternate between Subscribe and Like
         var overlayItem = overlayIndex % 2 === 0 ? subscribeItem : likeItem;
 
         try {
           overlayTrack.insertClip(overlayItem, clipMiddle);
         } catch (e) {
-          return "❌ Erro ao adicionar overlay na timeline.";
+          return "❌ Error adding overlay to the timeline.";
         }
 
         overlayIndex++;
       }
     }
 
-    return "✅ Overlays 'Inscreva-se' e 'Like' adicionados na trilha superior.";
+    return "✅ Success: 'Subscribe' and 'Like' overlays added to the upper track.";
   } catch (e) {
-    return "Erro inesperado: " + e.toString();
+    return "❌ Unexpected error: " + e.toString();
   }
 }
 
@@ -356,16 +362,26 @@ function addSubscribeAndLike() {
 // 🔥 Função para encontrar ou importar um arquivo corretamente
 function findOrImportFile(fileName, fileObject) {
   var item = findItemInProject(fileName);
+
   if (!item) {
-    app.project.importFiles(
-      [fileObject.fsName],
-      true,
-      app.project.rootItem,
-      false
-    );
-    $.sleep(500); // 🔥 Pequeno delay para garantir que a importação foi concluída
-    item = findItemInProject(fileName);
+    try {
+      app.project.importFiles(
+        [fileObject.fsName],
+        true,
+        app.project.rootItem,
+        false
+      );
+      $.sleep(500); // 🔥 Small delay to ensure the import is complete
+      item = findItemInProject(fileName);
+    } catch (e) {
+      return "❌ Error: Failed to import " + fileName;
+    }
   }
+
+  if (!item) {
+    return "❌ Error: " + fileName + " could not be found after import.";
+  }
+
   return item;
 }
 
@@ -380,5 +396,6 @@ function findItemInProject(name) {
       return item;
     }
   }
-  return null;
+
+  return null; // 🔥 Returns null if the item is not found
 }
