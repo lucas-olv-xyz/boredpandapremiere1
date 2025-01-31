@@ -4,3 +4,5 @@ Computador\HKEY_CURRENT_USER\Software\Adobe\CSXS.11
 put the files inside CEP folder of your premiere.
 
 change the paths
+
+give write permission to user
