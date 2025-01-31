@@ -260,8 +260,8 @@ function addSubscribeAndLike() {
     }
 
     // 🔥 Import first, then use the files
-    var subscribeItem = findOrImportFile("Subscribe.mov", subscribeFile);
-    var likeItem = findOrImportFile("Like.mov", likeFile);
+    var subscribeItem = findOrImportFile("subscribe.mov", subscribeFile);
+    var likeItem = findOrImportFile("like.mov", likeFile);
 
     if (!subscribeItem || !likeItem) {
       return "❌ Error importing overlay files.";
