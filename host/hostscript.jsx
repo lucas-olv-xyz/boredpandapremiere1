@@ -5,7 +5,7 @@ function importFilesFromTXT() {
     var txtFile = new File(txtPath);
 
     if (!txtFile.exists) {
-      return null; // 🔥 Retorna null para evitar "undefined"
+      return "❌ Error: TXT file not found: " + txtPath;
     }
 
     txtFile.open("r");
@@ -20,7 +20,7 @@ function importFilesFromTXT() {
     txtFile.close();
 
     if (filePaths.length === 0) {
-      return null; // 🔥 Retorna null para evitar alertas
+      return "⚠️ Warning: The TXT file is empty or contains no valid paths.";
     }
 
     var project = app.project;
@@ -33,15 +33,21 @@ function importFilesFromTXT() {
           project.importFiles([file.fsName], true, project.rootItem, false);
           importedFiles++;
         } catch (e) {
-          return null; // 🔥 Retorna null para evitar erro visível
+          return "❌ Error importing: " + file.fsName;
         }
+      } else {
+        return "❌ Error: File not found: " + filePaths[i];
       }
     }
-  } catch (e) {
-    return null; // 🔥 Retorna null para silenciar erros
-  }
 
-  return null; // 🔥 Garantia final de que nada será exibido
+    if (importedFiles === 0) {
+      return "⚠️ Warning: No files were imported.";
+    }
+
+    return "Success: " + importedFiles + " files imported.";
+  } catch (e) {
+    return "❌ Unexpected error: " + e.toString();
+  }
 }
 
 function addFilesToTimeline() {
