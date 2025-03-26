@@ -168,8 +168,8 @@ function addTransitionsAbove() {
     }
 
     var transitionPath =
-      "C:/Users/theel/Videos/premiere_test/transitions/A1.mov";
-    var outroPath = "C:/Users/theel/Videos/premiere_test/transitions/outro.mp4";
+      "//192.168.1.245/storage_kauno.g/SHARED ASSETS/01_Channel Branding/1 GENERIC ZOOM TRANSITIONS/CENTER IN.mov";
+    var outroPath = "//192.168.1.245/storage_kauno.g/SHARED ASSETS/01_Channel Branding/1 GENERIC ZOOM TRANSITIONS/Universal Outro.mp4";
 
     var transitionFile = new File(transitionPath);
     var outroFile = new File(outroPath);
@@ -182,8 +182,8 @@ function addTransitionsAbove() {
     }
 
     // Import files if necessary
-    var transitionItem = findOrImportFile("A1.mov", transitionFile);
-    var outroItem = findOrImportFile("outro.mp4", outroFile);
+    var transitionItem = findOrImportFile("CENTER IN.mov", transitionFile);
+    var outroItem = findOrImportFile("Universal Outro.mp4", outroFile);
 
     if (!transitionItem || !outroItem) {
       return "❌ Error importing transition or outro files.";
@@ -249,8 +249,8 @@ function addSubscribeAndLike() {
     }
 
     var subscribePath =
-      "C:/Users/theel/Videos/premiere_test/like sub/Subscribe.mov";
-    var likePath = "C:/Users/theel/Videos/premiere_test/like sub/Like.mov";
+      "Y:/SHARED ASSETS/Like Subscribe Graphics/subscribe.mov";
+    var likePath = "Y:/SHARED ASSETS/Like Subscribe Graphics/like.mov";
 
     var subscribeFile = new File(subscribePath);
     var likeFile = new File(likePath);
@@ -260,8 +260,8 @@ function addSubscribeAndLike() {
     }
 
     // 🔥 Import first, then use the files
-    var subscribeItem = findOrImportFile("Subscribe.mov", subscribeFile);
-    var likeItem = findOrImportFile("Like.mov", likeFile);
+    var subscribeItem = findOrImportFile("subscribe.mov", subscribeFile);
+    var likeItem = findOrImportFile("like.mov", likeFile);
 
     if (!subscribeItem || !likeItem) {
       return "❌ Error importing overlay files.";
