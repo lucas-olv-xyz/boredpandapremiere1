@@ -31,7 +31,7 @@ Tudo isso em poucos cliques, direto de um painel integrado ao Premiere.
 
 ## 🚀 Como Usar
 
-1. Copie os caminhos dos arquivos de vídeo (ex: via explorador de arquivos).
+1. Copie os caminhos dos arquivos de vídeo (via software interno).
 2. Cole no campo de texto do painel.
 3. Clique em `1. save TXT` para salvar os caminhos.
 4. Use os botões `2` a `5` para importar, posicionar e estilizar os vídeos na timeline automaticamente.
