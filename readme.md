@@ -1,8 +1,8 @@
-# 🎬 vert auto-seq
+#  vert auto-seq
 
 **An extension for Adobe Premiere Pro that speeds up your vertical video editing workflow.**
 
-## 📌 Overview
+##  Overview
 
 `vert auto-seq` is a custom panel for Adobe Premiere Pro that automates several repetitive steps in the creation of vertical videos, such as:
 
@@ -17,7 +17,7 @@ All of this in just a few clicks, directly from a panel integrated into Premiere
 
 ---
 
-## ⚡ Features
+##  Features
 
 | Button                       | Action                                                           |
 | --------------------------- | ---------------------------------------------------------------- |
@@ -29,7 +29,7 @@ All of this in just a few clicks, directly from a panel integrated into Premiere
 
 ---
 
-## 🚀 How to Use
+##  How to Use
 
 1. Copy the paths of the video files (using internal software).
 2. Paste them into the panel's text field.
@@ -40,7 +40,7 @@ All of this in just a few clicks, directly from a panel integrated into Premiere
 
 ---
 
-## 🧩 Requirements
+##  Requirements
 
 - Adobe Premiere Pro (tested on version XX)
 - Windows
@@ -54,7 +54,7 @@ All of this in just a few clicks, directly from a panel integrated into Premiere
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 vert-auto-seq/
@@ -67,7 +67,7 @@ vert-auto-seq/
 
 ---
 
-## 💡 Possible Future Improvements
+##  Possible Future Improvements
 
 - macOS compatibility  
 - Visual file selection interface  
@@ -77,7 +77,7 @@ vert-auto-seq/
 
 ---
 
-## ✍️ Author
+##  Author
 
 Made with 💻 and ☕ by Lucas Oliveira  
 Want to contribute, test, or suggest improvements? Feel free to open an issue or PR.
